@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Subscription Payment</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        /* Add some styling */
+        .StripeElement {
+            box-sizing: border-box;
+            height: 40px;
+            padding: 10px 12px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            background-color: white;
+            box-shadow: 0 1px 3px 0 #e6ebf1;
+            transition: box-shadow 150ms ease;
+        }
+        .StripeElement--focus {
+            box-shadow: 0 1px 3px 0 #cfd7df;
+        }
+        .StripeElement--invalid {
+            border-color: #fa755a;
+        }
+        .StripeElement--webkit-autofill {
+            background-color: #fefde5 !important;
+        }
+    </style>
+</head>
+<body>
+    <h1>Subscribe to our service</h1>
+    <form id="subscription-form">
+        <div id="card-element" class="StripeElement"></div>
+        <button type="submit">Subscribe</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const stripe = Stripe('YOUR_PUBLISHABLE_KEY'); // Replace with your Stripe publishable key
+            const elements = stripe.elements();
+            const card = elements.create('card');
+            card.mount('#card-element');
+
+            const form = document.getElementById('subscription-form');
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const { setupIntent, error } = await stripe.confirmCardSetup(
+                    'CLIENT_SECRET_FROM_BACKEND', // Replace with the client secret returned by your server
+                    {
+                        payment_method: {
+                            card: card,
+                        },
+                    }
+                );
+
+                if (error) {
+                    console.error(error);
+                } else {
+                    console.log('Setup Intent succeeded:', setupIntent);
+                    // Send setupIntent.payment_method to your server to create a subscription
+                }
+            });
+        });
+    </script>
+</body>
+</html>
